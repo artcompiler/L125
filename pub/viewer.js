@@ -337,7 +337,7 @@ window.gcexports.viewer = function () {
       // owned components.
       return React.createElement("div", { id: "calculator", style: {
           "width": "600px",
-          "height": "400px"
+          "height": "600px"
         } });
     }
   });

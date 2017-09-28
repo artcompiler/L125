@@ -64,7 +64,7 @@ window.gcexports.viewer = (function () {
       return (
         <div id="calculator" style={{
           "width": "600px",
-          "height": "400px",
+          "height": "600px",
         }}></div>
       );
     },
