@@ -49,10 +49,13 @@ window.gcexports.viewer = (function () {
         showYAxis: false,
       });
       let data = [].concat(this.props.obj);
-      data.forEach((d) => {
-        this.calculator.setExpression({
-          latex: d,
-        });
+      data.forEach((expr) => {
+        if (typeof expr === "string") {
+          expr = {
+            latex: expr,
+          };
+        }
+        this.calculator.setExpression(expr);
       });
     },
     render() {

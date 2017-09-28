@@ -34,7 +34,7 @@ const transform = (function() {
     "VAL" : val,
     "KEY" : key,
     "LEN" : len,
-    "STYLE" : styleV1,
+    "STYLE" : style,
     "CONCAT" : concat,
     "ARG" : arg,
     "IN" : inData,
@@ -42,6 +42,7 @@ const transform = (function() {
     "PAREN" : paren,
     "APPLY" : apply,
     "MAP" : map,
+    "COLOR" : color,
   };
   let nodePool;
   let version;
@@ -141,6 +142,32 @@ const transform = (function() {
         err1 = err1.concat(error("Argument must be a number.", node.elts[0]));
       }
       resume([].concat(err1), options.args[key]);
+    });
+  }
+  function color(node, options, resume) {
+    visit(node.elts[0], options, function (err1, val1) {
+      visit(node.elts[1], options, function (err2, val2) {
+        if (typeof val2 === "string") {
+          val2 = {
+            latex: val2,
+          };
+        }
+        val2.color = val1;
+        resume([].concat(err1).concat(err2), val2);
+      });
+    });
+  }
+  function style(node, options, resume) {
+    visit(node.elts[0], options, function (err1, val1) {
+      visit(node.elts[1], options, function (err2, val2) {
+        if (typeof val2 === "string") {
+          val2 = {
+            latex: val2,
+          };
+        }
+        val2.style = val1;
+        resume([].concat(err1).concat(err2), val2);
+      });
     });
   }
   function args(node, options, resume) {
@@ -307,26 +334,6 @@ const transform = (function() {
           err2 = err2.concat(error("Argument must be a number.", node.elts[1]));
         }
         resume([].concat(err1).concat(err2), val1 * val2);
-      });
-    });
-  }
-  function style(node, options, resume) {
-    visit(node.elts[0], options, function (err1, val1) {
-      visit(node.elts[1], options, function (err2, val2) {
-        resume([].concat(err1).concat(err2), {
-          value: val1,
-          style: val2,
-        });
-      });
-    });
-  }
-  function styleV1(node, options, resume) {
-    visit(node.elts[0], options, function (err1, val1) {
-      visit(node.elts[1], options, function (err2, val2) {
-        resume([].concat(err1).concat(err2), {
-          style: val1,
-          value: val2,
-        });
       });
     });
   }

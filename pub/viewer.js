@@ -323,10 +323,13 @@ window.gcexports.viewer = function () {
         showYAxis: false
       });
       var data = [].concat(this.props.obj);
-      data.forEach(function (d) {
-        _this2.calculator.setExpression({
-          latex: d
-        });
+      data.forEach(function (expr) {
+        if (typeof expr === "string") {
+          expr = {
+            latex: expr
+          };
+        }
+        _this2.calculator.setExpression(expr);
       });
     },
     render: function render() {
