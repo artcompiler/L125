@@ -24,6 +24,7 @@ window.gcexports.viewer = (function () {
   }
   var Viewer = React.createClass({
     calculator: undefined,
+    calculatorState: undefined,
     componentDidMount() {
       loadAPI(() => {
         var elt = document.getElementById('calculator');
@@ -38,33 +39,54 @@ window.gcexports.viewer = (function () {
           border: true,
           expressionsCollapsed: true,
         });
+        this.interval = setInterval(() => {
+          let state = this.calculator.getState();
+          if (!this.calculatorState) {
+            this.calculatorState = state;
+          } else if (JSON.stringify(this.calculatorState) !== JSON.stringify(state)) {
+            this.calculatorState = state;
+            window.gcexports.dispatcher.dispatch({
+              "L125": {
+                data: {
+                  calculatorState: state,
+                },
+              }
+            });
+          }
+        }, 1000);
+        let obj = this.props.obj;
+        this.calculator.setBlank();
+        this.calculator.updateSettings({
+          showGrid: obj.showGrid || false,
+          showXAxis: obj.showXAxis || false,
+          showYAxis: obj.showYAxis || false,
+        });
+        let data = [].concat(obj.exprs ? obj.exprs : obj);
+        data.forEach((expr) => {
+          if (typeof expr === "string") {
+            expr = {
+              latex: expr,
+            };
+          }
+          this.calculator.setExpression(expr);
+        });
         this.componentDidUpdate();
       });
     },
     componentDidUpdate() {
-      this.calculator.setBlank();
-      this.calculator.updateSettings({
-        showGrid: false,
-        showXAxis: false,
-        showYAxis: false,
-      });
-      let data = [].concat(this.props.obj);
-      data.forEach((expr) => {
-        if (typeof expr === "string") {
-          expr = {
-            latex: expr,
-          };
-        }
-        this.calculator.setExpression(expr);
-      });
+      if (this.calculator && this.props.calculatorState) {
+        this.calculator.setState(this.props.calculatorState);
+      }
     },
     render() {
       // If you have nested components, make sure you send the props down to the
       // owned components.
+      let width = this.props.obj.width || "600px";
+      let height = this.props.obj.height || "400px"
       return (
         <div id="calculator" style={{
-          "width": "600px",
-          "height": "600px",
+          "width": width,
+          "height": height,
         }}></div>
       );
     },

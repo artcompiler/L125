@@ -40,7 +40,11 @@ const transform = (function() {
     "IN" : inData,
     "LAMBDA" : lambda,
     "PAREN" : paren,
-    "APPLY" : apply,
+    "WIDTH" : width,
+    "HEIGHT" : height,
+    "SHOW-GRID" : showGrid,
+    "SHOW-X-AXIS" : showXAxis,
+    "SHOW-Y-AXIS" : showYAxis,
     "MAP" : map,
     "COLOR" : color,
   };
@@ -181,15 +185,68 @@ const transform = (function() {
       });
     });
   }
-  function apply(node, options, resume) {
+  function width(node, options, resume) {
     // Apply a function to arguments.
-    visit(node.elts[1], options, function (err1, val1) {
-      // args
-      options.args = [val1];
-      visit(node.elts[0], options, function (err0, val0) {
-        // fn
-        resume([].concat(err1).concat(err0), val0);
+    visit(node.elts[0], options, function (err0, val0) {
+      visit(node.elts[1], options, function (err1, val1) {
+        if (!val1.exprs) {
+          val1 = {
+            exprs: val1
+          }
+        }
+        val1.width = val0;
+        resume([].concat(err0).concat(err1), val1);
       });
+    });
+  }
+  function height(node, options, resume) {
+    // Apply a function to arguments.
+    visit(node.elts[0], options, function (err0, val0) {
+      visit(node.elts[1], options, function (err1, val1) {
+        if (!val1.exprs) {
+          val1 = {
+            exprs: val1
+          }
+        }
+        val1.height = val0;
+        resume([].concat(err0).concat(err1), val1);
+      });
+    });
+  }
+  function showGrid(node, options, resume) {
+    // Apply a function to arguments.
+    visit(node.elts[0], options, function (err0, val0) {
+      if (!val0.exprs) {
+        val0 = {
+          exprs: val0
+        }
+      }
+      val0.showGrid = true;
+      resume([].concat(err0), val0);
+    });
+  }
+  function showXAxis(node, options, resume) {
+    // Apply a function to arguments.
+    visit(node.elts[0], options, function (err0, val0) {
+      if (!val0.exprs) {
+        val0 = {
+          exprs: val0
+        }
+      }
+      val0.showXAxis = true;
+      resume([].concat(err0), val0);
+    });
+  }
+  function showYAxis(node, options, resume) {
+    // Apply a function to arguments.
+    visit(node.elts[0], options, function (err0, val0) {
+      if (!val0.exprs) {
+        val0 = {
+          exprs: val0
+        }
+      }
+      val0.showYAxis = true;
+      resume([].concat(err0), val0);
     });
   }
   function map(node, options, resume) {
