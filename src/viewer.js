@@ -25,6 +25,8 @@ window.gcexports.viewer = (function () {
   var Viewer = React.createClass({
     calculator: undefined,
     calculatorState: undefined,
+    interval: undefined,
+    timer: undefined,
     componentDidMount() {
       loadAPI(() => {
         var elt = document.getElementById('calculator');
@@ -40,20 +42,37 @@ window.gcexports.viewer = (function () {
           expressionsCollapsed: true,
         });
         this.interval = setInterval(() => {
+          // Check for state changes. Set a timer to wait for user pause
+          // of 1 second before saving state.
           let state = this.calculator.getState();
           if (!this.calculatorState) {
             this.calculatorState = state;
           } else if (JSON.stringify(this.calculatorState) !== JSON.stringify(state)) {
             this.calculatorState = state;
-            window.gcexports.dispatcher.dispatch({
-              "L125": {
-                data: {
-                  calculatorState: state,
-                },
-              }
-            });
+            // window.gcexports.dispatcher.dispatch({
+            //   "L125": {
+            //     data: {
+            //       calculatorState: state,
+            //     },
+            //   }
+            // });
+            let timer = this.timer;
+            if (timer) {
+              // Reset timer to wait another second pause.
+              window.clearTimeout(timer);
+            }
+            this.timer = window.setTimeout(function () {
+              // It's been 1000ms since last change, so save it.
+              window.gcexports.dispatcher.dispatch({
+                "L125": {
+                  data: {
+                    calculatorState: state,
+                  },
+                }
+              });
+            }, 1000);
           }
-        }, 1000);
+        }, 100);
         let obj = this.props.obj;
         this.calculator.setBlank();
         this.calculator.updateSettings({

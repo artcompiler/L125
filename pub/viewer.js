@@ -295,6 +295,8 @@ window.gcexports.viewer = function () {
 
     calculator: undefined,
     calculatorState: undefined,
+    interval: undefined,
+    timer: undefined,
     componentDidMount: function componentDidMount() {
       var _this = this;
 
@@ -312,20 +314,37 @@ window.gcexports.viewer = function () {
           expressionsCollapsed: true
         });
         _this.interval = setInterval(function () {
+          // Check for state changes. Set a timer to wait for user pause
+          // of 1 second before saving state.
           var state = _this.calculator.getState();
           if (!_this.calculatorState) {
             _this.calculatorState = state;
           } else if (JSON.stringify(_this.calculatorState) !== JSON.stringify(state)) {
             _this.calculatorState = state;
-            window.gcexports.dispatcher.dispatch({
-              "L125": {
-                data: {
-                  calculatorState: state
+            // window.gcexports.dispatcher.dispatch({
+            //   "L125": {
+            //     data: {
+            //       calculatorState: state,
+            //     },
+            //   }
+            // });
+            var timer = _this.timer;
+            if (timer) {
+              // Reset timer to wait another second pause.
+              window.clearTimeout(timer);
+            }
+            _this.timer = window.setTimeout(function () {
+              // It's been 1000ms since last change, so save it.
+              window.gcexports.dispatcher.dispatch({
+                "L125": {
+                  data: {
+                    calculatorState: state
+                  }
                 }
-              }
-            });
+              });
+            }, 1000);
           }
-        }, 1000);
+        }, 100);
         var obj = _this.props.obj;
         _this.calculator.setBlank();
         _this.calculator.updateSettings({
