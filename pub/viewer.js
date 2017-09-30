@@ -313,6 +313,22 @@ window.gcexports.viewer = function () {
           border: true,
           expressionsCollapsed: true
         });
+        var obj = _this.lastOBJ = _this.props.obj;
+        var graph = {
+          showGrid: obj.showGrid || false,
+          showXAxis: obj.showXAxis || false,
+          showYAxis: obj.showYAxis || false
+        };
+        _this.calculator.updateSettings(graph);
+        var exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        exprs.forEach(function (expr) {
+          if (typeof expr === "string") {
+            expr = {
+              latex: expr
+            };
+          }
+          _this.calculator.setExpression(expr);
+        });
         _this.interval = setInterval(function () {
           // Check for state changes. Set a timer to wait for user pause
           // of 1 second before saving state.
@@ -321,13 +337,6 @@ window.gcexports.viewer = function () {
             _this.calculatorState = state;
           } else if (JSON.stringify(_this.calculatorState) !== JSON.stringify(state)) {
             _this.calculatorState = state;
-            // window.gcexports.dispatcher.dispatch({
-            //   "L125": {
-            //     data: {
-            //       calculatorState: state,
-            //     },
-            //   }
-            // });
             var timer = _this.timer;
             if (timer) {
               // Reset timer to wait another second pause.
@@ -345,29 +354,39 @@ window.gcexports.viewer = function () {
             }, 1000);
           }
         }, 100);
-        var obj = _this.props.obj;
-        _this.calculator.setBlank();
-        _this.calculator.updateSettings({
+        _this.componentDidUpdate();
+        window.gcexports.dispatcher.dispatch({
+          "L125": {
+            data: {}
+          }
+        });
+      });
+    },
+    componentDidUpdate: function componentDidUpdate() {
+      var _this2 = this;
+
+      if (this.props.calculatorState) {
+        this.calculator.setState(this.props.calculatorState);
+      }
+      if (JSON.stringify(this.props.obj) !== JSON.stringify(this.lastOBJ)) {
+        var obj = this.lastOBJ = this.props.obj;
+        var graph = {
           showGrid: obj.showGrid || false,
           showXAxis: obj.showXAxis || false,
           showYAxis: obj.showYAxis || false
-        });
-        var data = [].concat(obj.exprs ? obj.exprs : obj);
-        data.forEach(function (expr) {
+        };
+        this.calculator.updateSettings(graph);
+        var exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        exprs.forEach(function (expr) {
           if (typeof expr === "string") {
             expr = {
               latex: expr
             };
           }
-          _this.calculator.setExpression(expr);
+          _this2.calculator.setExpression(expr);
         });
-        _this.componentDidUpdate();
-      });
-    },
-    componentDidUpdate: function componentDidUpdate() {
-      if (this.calculator && this.props.calculatorState) {
-        this.calculator.setState(this.props.calculatorState);
       }
+      this.calculatorState = this.calculator.getState();
     },
     render: function render() {
       // If you have nested components, make sure you send the props down to the

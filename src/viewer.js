@@ -41,6 +41,22 @@ window.gcexports.viewer = (function () {
           border: true,
           expressionsCollapsed: true,
         });
+        let obj = this.lastOBJ = this.props.obj;
+        let graph = {
+          showGrid: obj.showGrid || false,
+          showXAxis: obj.showXAxis || false,
+          showYAxis: obj.showYAxis || false,
+        };
+        this.calculator.updateSettings(graph);
+        let exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        exprs.forEach((expr) => {
+          if (typeof expr === "string") {
+            expr = {
+              latex: expr,
+            };
+          }
+          this.calculator.setExpression(expr);
+        });
         this.interval = setInterval(() => {
           // Check for state changes. Set a timer to wait for user pause
           // of 1 second before saving state.
@@ -49,13 +65,6 @@ window.gcexports.viewer = (function () {
             this.calculatorState = state;
           } else if (JSON.stringify(this.calculatorState) !== JSON.stringify(state)) {
             this.calculatorState = state;
-            // window.gcexports.dispatcher.dispatch({
-            //   "L125": {
-            //     data: {
-            //       calculatorState: state,
-            //     },
-            //   }
-            // });
             let timer = this.timer;
             if (timer) {
               // Reset timer to wait another second pause.
@@ -73,15 +82,28 @@ window.gcexports.viewer = (function () {
             }, 1000);
           }
         }, 100);
-        let obj = this.props.obj;
-        this.calculator.setBlank();
-        this.calculator.updateSettings({
+        this.componentDidUpdate();
+        window.gcexports.dispatcher.dispatch({
+          "L125": {
+            data: {},
+          }
+        });
+      });
+    },
+    componentDidUpdate() {
+      if (this.props.calculatorState) {
+        this.calculator.setState(this.props.calculatorState);
+      }
+      if (JSON.stringify(this.props.obj) !== JSON.stringify(this.lastOBJ)) {
+        let obj = this.lastOBJ = this.props.obj;
+        let graph = {
           showGrid: obj.showGrid || false,
           showXAxis: obj.showXAxis || false,
           showYAxis: obj.showYAxis || false,
-        });
-        let data = [].concat(obj.exprs ? obj.exprs : obj);
-        data.forEach((expr) => {
+        };
+        this.calculator.updateSettings(graph);
+        let exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        exprs.forEach((expr) => {
           if (typeof expr === "string") {
             expr = {
               latex: expr,
@@ -89,13 +111,8 @@ window.gcexports.viewer = (function () {
           }
           this.calculator.setExpression(expr);
         });
-        this.componentDidUpdate();
-      });
-    },
-    componentDidUpdate() {
-      if (this.calculator && this.props.calculatorState) {
-        this.calculator.setState(this.props.calculatorState);
       }
+      this.calculatorState = this.calculator.getState();
     },
     render() {
       // If you have nested components, make sure you send the props down to the
