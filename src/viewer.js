@@ -41,22 +41,6 @@ window.gcexports.viewer = (function () {
           border: true,
           expressionsCollapsed: true,
         });
-        // let obj = this.lastOBJ = this.props.obj;
-        // let graph = {
-        //   showGrid: obj.showGrid || false,
-        //   showXAxis: obj.showXAxis || false,
-        //   showYAxis: obj.showYAxis || false,
-        // };
-        // this.calculator.updateSettings(graph);
-        // let exprs = [].concat(obj.exprs ? obj.exprs : obj);
-        // exprs.forEach((expr) => {
-        //   if (typeof expr === "string") {
-        //     expr = {
-        //       latex: expr,
-        //     };
-        //   }
-        //   this.calculator.setExpression(expr);
-        // });
         this.interval = setInterval(() => {
           // Check for state changes. Set a timer to wait for user pause
           // of 1 second before saving state.
@@ -64,6 +48,7 @@ window.gcexports.viewer = (function () {
           if (!this.calculatorState) {
             this.calculatorState = state;
           } else if (JSON.stringify(this.calculatorState) !== JSON.stringify(state)) {
+            // calculatorState has changed so set timer for save.
             this.calculatorState = state;
             let timer = this.timer;
             if (timer) {
@@ -85,32 +70,46 @@ window.gcexports.viewer = (function () {
         this.componentDidUpdate();
       });
     },
-    componentDidUpdate() {
-      let calculatorState = this.props.calculatorState || this.calculatorState;
-      if (calculatorState) {
-        this.calculator.setState(calculatorState);
-      }
-      if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
-        if (this.lastOBJ) {
-          // Code changed so clear user state.
-          this.calculator.setBlank();
+    updateCode() {
+      let obj = this.props.obj;
+      let graph = {
+        showGrid: obj.showGrid || false,
+        showXAxis: obj.showXAxis || false,
+        showYAxis: obj.showYAxis || false,
+      };
+      this.calculator.updateSettings(graph);
+      let exprs = [].concat(obj.exprs ? obj.exprs : obj);
+      exprs.forEach((expr) => {
+        if (typeof expr === "string") {
+          expr = {
+            latex: expr,
+          };
         }
-        let obj = this.props.obj;
-        let graph = {
-          showGrid: obj.showGrid || false,
-          showXAxis: obj.showXAxis || false,
-          showYAxis: obj.showYAxis || false,
-        };
-        this.calculator.updateSettings(graph);
-        let exprs = [].concat(obj.exprs ? obj.exprs : obj);
-        exprs.forEach((expr) => {
-          if (typeof expr === "string") {
-            expr = {
-              latex: expr,
-            };
-          }
-          this.calculator.setExpression(expr);
-        });
+        this.calculator.setExpression(expr);
+      });
+    },
+    componentDidUpdate() {
+      if (!this.calculator) {
+        return;
+      }
+      // Three states:
+      //             | code      | state
+      // State       | old | new | old | new
+      // ------------|-----|-----|-----|-----|-----------
+      // Reload      | N   | Y   | N   | ?   | setState + setCode
+      // New code    | Y   | Y   | ?   | ?   | clrState + setCode
+      // User action | Y   | N   | ?   | Y   | saveState
+      // [1] Move, edit, reload needs to apply latest code.
+      // [2] Move needs to apply state.
+      if (!this.lastOBJ) {
+        if (this.props.calculatorState) {
+          this.calculator.setState(this.props.calculatorState);
+        }
+        this.updateCode();
+      } else if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
+        // Code changed so clear user state.
+        this.calculator.setBlank();
+        this.updateCode();
       }
       this.lastOBJ = this.props.obj;
       this.calculatorState = this.calculator.getState();

@@ -357,34 +357,53 @@ window.gcexports.viewer = function () {
         _this.componentDidUpdate();
       });
     },
-    componentDidUpdate: function componentDidUpdate() {
+    updateCode: function updateCode() {
       var _this2 = this;
 
-      var calculatorState = this.props.calculatorState || this.calculatorState;
-      if (calculatorState) {
-        this.calculator.setState(calculatorState);
-      }
-      if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
-        if (this.lastOBJ) {
-          // Code changed so clear user state.
-          this.calculator.setBlank();
+      var obj = this.props.obj;
+      var graph = {
+        showGrid: obj.showGrid || false,
+        showXAxis: obj.showXAxis || false,
+        showYAxis: obj.showYAxis || false
+      };
+      this.calculator.updateSettings(graph);
+      var exprs = [].concat(obj.exprs ? obj.exprs : obj);
+      exprs.forEach(function (expr) {
+        if (typeof expr === "string") {
+          expr = {
+            latex: expr
+          };
         }
-        var obj = this.props.obj;
-        var graph = {
-          showGrid: obj.showGrid || false,
-          showXAxis: obj.showXAxis || false,
-          showYAxis: obj.showYAxis || false
-        };
-        this.calculator.updateSettings(graph);
-        var exprs = [].concat(obj.exprs ? obj.exprs : obj);
-        exprs.forEach(function (expr) {
-          if (typeof expr === "string") {
-            expr = {
-              latex: expr
-            };
-          }
-          _this2.calculator.setExpression(expr);
-        });
+        _this2.calculator.setExpression(expr);
+      });
+    },
+    componentDidUpdate: function componentDidUpdate() {
+      if (!this.calculator) {
+        return;
+      }
+      // Three states:
+      //             | code      | state
+      // State       | old | new | old | new
+      // ------------|-----|-----|-----|-----|-----------
+      // Reload      | N   | Y   | N   | ?   | setState + setCode
+      // New code    | Y   | Y   | ?   | ?   | clrState + setCode
+      // User action | Y   | N   | ?   | Y   | setState
+      // [1] Move, edit, reload needs to apply latest code.
+      // [2] Move needs to apply state.
+      var calculatorState = this.props.calculatorState;
+      if (!this.lastOBJ) {
+        if (calculatorState) {
+          this.calculator.setState(calculatorState);
+        }
+        this.updateCode();
+      } else if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
+        // Code changed so clear user state.
+        this.calculator.setBlank();
+        this.updateCode();
+      } else {
+        // if (calculatorState) {
+        //   this.calculator.setState(calculatorState);
+        // }
       }
       this.lastOBJ = this.props.obj;
       this.calculatorState = this.calculator.getState();
