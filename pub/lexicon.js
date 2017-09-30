@@ -16,6 +16,7 @@ window.gcexports.globalLexicon = {
     "in" : { "tk": 1, "name": "IN", "cls": "function", "length": 0, "arity": 0 },
     "color" : { "tk": 1, "name": "COLOR", "cls": "function", "length": 2, "arity": 2 },
     "arg" : { "tk": 1, "name": "ARG", "cls": "function", "length": 1, "arity": 1 },
+    "WHITE" : { "tk": 1, "cls": "string", "val": "#ffffff", "length": 0 },
     "RED" : { "tk": 1, "cls": "string", "val": "#c74440", "length": 0 },
     "BLUE" : { "tk": 1, "cls": "string", "val": "#2d70b3", "length": 0 },
     "GREEN" : { "tk": 1, "cls": "string", "val": "#388c46", "length": 0 },

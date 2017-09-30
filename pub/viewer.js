@@ -313,22 +313,6 @@ window.gcexports.viewer = function () {
           border: true,
           expressionsCollapsed: true
         });
-        // let obj = this.lastOBJ = this.props.obj;
-        // let graph = {
-        //   showGrid: obj.showGrid || false,
-        //   showXAxis: obj.showXAxis || false,
-        //   showYAxis: obj.showYAxis || false,
-        // };
-        // this.calculator.updateSettings(graph);
-        // let exprs = [].concat(obj.exprs ? obj.exprs : obj);
-        // exprs.forEach((expr) => {
-        //   if (typeof expr === "string") {
-        //     expr = {
-        //       latex: expr,
-        //     };
-        //   }
-        //   this.calculator.setExpression(expr);
-        // });
         _this.interval = setInterval(function () {
           // Check for state changes. Set a timer to wait for user pause
           // of 1 second before saving state.
@@ -336,6 +320,7 @@ window.gcexports.viewer = function () {
           if (!_this.calculatorState) {
             _this.calculatorState = state;
           } else if (JSON.stringify(_this.calculatorState) !== JSON.stringify(state)) {
+            // calculatorState has changed so set timer for save.
             _this.calculatorState = state;
             var timer = _this.timer;
             if (timer) {
@@ -387,23 +372,18 @@ window.gcexports.viewer = function () {
       // ------------|-----|-----|-----|-----|-----------
       // Reload      | N   | Y   | N   | ?   | setState + setCode
       // New code    | Y   | Y   | ?   | ?   | clrState + setCode
-      // User action | Y   | N   | ?   | Y   | setState
+      // User action | Y   | N   | ?   | Y   | saveState
       // [1] Move, edit, reload needs to apply latest code.
       // [2] Move needs to apply state.
-      var calculatorState = this.props.calculatorState;
       if (!this.lastOBJ) {
-        if (calculatorState) {
-          this.calculator.setState(calculatorState);
+        if (this.props.calculatorState) {
+          this.calculator.setState(this.props.calculatorState);
         }
         this.updateCode();
       } else if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
         // Code changed so clear user state.
         this.calculator.setBlank();
         this.updateCode();
-      } else {
-        // if (calculatorState) {
-        //   this.calculator.setState(calculatorState);
-        // }
       }
       this.lastOBJ = this.props.obj;
       this.calculatorState = this.calculator.getState();
