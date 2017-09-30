@@ -94,24 +94,22 @@ window.gcexports.viewer = (function () {
       if (this.props.calculatorState) {
         this.calculator.setState(this.props.calculatorState);
       }
-      if (JSON.stringify(this.props.obj) !== JSON.stringify(this.lastOBJ)) {
-        let obj = this.lastOBJ = this.props.obj;
-        let graph = {
-          showGrid: obj.showGrid || false,
-          showXAxis: obj.showXAxis || false,
-          showYAxis: obj.showYAxis || false,
-        };
-        this.calculator.updateSettings(graph);
-        let exprs = [].concat(obj.exprs ? obj.exprs : obj);
-        exprs.forEach((expr) => {
-          if (typeof expr === "string") {
-            expr = {
-              latex: expr,
-            };
-          }
-          this.calculator.setExpression(expr);
-        });
-      }
+      let obj = this.lastOBJ = this.props.obj;
+      let graph = {
+        showGrid: obj.showGrid || false,
+        showXAxis: obj.showXAxis || false,
+        showYAxis: obj.showYAxis || false,
+      };
+      this.calculator.updateSettings(graph);
+      let exprs = [].concat(obj.exprs ? obj.exprs : obj);
+      exprs.forEach((expr) => {
+        if (typeof expr === "string") {
+          expr = {
+            latex: expr,
+          };
+        }
+        this.calculator.setExpression(expr);
+      });
       this.calculatorState = this.calculator.getState();
     },
     render() {
