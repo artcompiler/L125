@@ -41,22 +41,22 @@ window.gcexports.viewer = (function () {
           border: true,
           expressionsCollapsed: true,
         });
-        let obj = this.lastOBJ = this.props.obj;
-        let graph = {
-          showGrid: obj.showGrid || false,
-          showXAxis: obj.showXAxis || false,
-          showYAxis: obj.showYAxis || false,
-        };
-        this.calculator.updateSettings(graph);
-        let exprs = [].concat(obj.exprs ? obj.exprs : obj);
-        exprs.forEach((expr) => {
-          if (typeof expr === "string") {
-            expr = {
-              latex: expr,
-            };
-          }
-          this.calculator.setExpression(expr);
-        });
+        // let obj = this.lastOBJ = this.props.obj;
+        // let graph = {
+        //   showGrid: obj.showGrid || false,
+        //   showXAxis: obj.showXAxis || false,
+        //   showYAxis: obj.showYAxis || false,
+        // };
+        // this.calculator.updateSettings(graph);
+        // let exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        // exprs.forEach((expr) => {
+        //   if (typeof expr === "string") {
+        //     expr = {
+        //       latex: expr,
+        //     };
+        //   }
+        //   this.calculator.setExpression(expr);
+        // });
         this.interval = setInterval(() => {
           // Check for state changes. Set a timer to wait for user pause
           // of 1 second before saving state.
@@ -83,33 +83,36 @@ window.gcexports.viewer = (function () {
           }
         }, 100);
         this.componentDidUpdate();
-        window.gcexports.dispatcher.dispatch({
-          "L125": {
-            data: {},
-          }
-        });
       });
     },
     componentDidUpdate() {
-      if (this.props.calculatorState) {
-        this.calculator.setState(this.props.calculatorState);
+      let calculatorState = this.props.calculatorState || this.calculatorState;
+      if (calculatorState) {
+        this.calculator.setState(calculatorState);
       }
-      let obj = this.lastOBJ = this.props.obj;
-      let graph = {
-        showGrid: obj.showGrid || false,
-        showXAxis: obj.showXAxis || false,
-        showYAxis: obj.showYAxis || false,
-      };
-      this.calculator.updateSettings(graph);
-      let exprs = [].concat(obj.exprs ? obj.exprs : obj);
-      exprs.forEach((expr) => {
-        if (typeof expr === "string") {
-          expr = {
-            latex: expr,
-          };
+      if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
+        if (this.lastOBJ) {
+          // Code changed so clear user state.
+          this.calculator.setBlank();
         }
-        this.calculator.setExpression(expr);
-      });
+        let obj = this.props.obj;
+        let graph = {
+          showGrid: obj.showGrid || false,
+          showXAxis: obj.showXAxis || false,
+          showYAxis: obj.showYAxis || false,
+        };
+        this.calculator.updateSettings(graph);
+        let exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        exprs.forEach((expr) => {
+          if (typeof expr === "string") {
+            expr = {
+              latex: expr,
+            };
+          }
+          this.calculator.setExpression(expr);
+        });
+      }
+      this.lastOBJ = this.props.obj;
       this.calculatorState = this.calculator.getState();
     },
     render() {

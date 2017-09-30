@@ -313,22 +313,22 @@ window.gcexports.viewer = function () {
           border: true,
           expressionsCollapsed: true
         });
-        var obj = _this.lastOBJ = _this.props.obj;
-        var graph = {
-          showGrid: obj.showGrid || false,
-          showXAxis: obj.showXAxis || false,
-          showYAxis: obj.showYAxis || false
-        };
-        _this.calculator.updateSettings(graph);
-        var exprs = [].concat(obj.exprs ? obj.exprs : obj);
-        exprs.forEach(function (expr) {
-          if (typeof expr === "string") {
-            expr = {
-              latex: expr
-            };
-          }
-          _this.calculator.setExpression(expr);
-        });
+        // let obj = this.lastOBJ = this.props.obj;
+        // let graph = {
+        //   showGrid: obj.showGrid || false,
+        //   showXAxis: obj.showXAxis || false,
+        //   showYAxis: obj.showYAxis || false,
+        // };
+        // this.calculator.updateSettings(graph);
+        // let exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        // exprs.forEach((expr) => {
+        //   if (typeof expr === "string") {
+        //     expr = {
+        //       latex: expr,
+        //     };
+        //   }
+        //   this.calculator.setExpression(expr);
+        // });
         _this.interval = setInterval(function () {
           // Check for state changes. Set a timer to wait for user pause
           // of 1 second before saving state.
@@ -355,35 +355,38 @@ window.gcexports.viewer = function () {
           }
         }, 100);
         _this.componentDidUpdate();
-        window.gcexports.dispatcher.dispatch({
-          "L125": {
-            data: {}
-          }
-        });
       });
     },
     componentDidUpdate: function componentDidUpdate() {
       var _this2 = this;
 
-      if (this.props.calculatorState) {
-        this.calculator.setState(this.props.calculatorState);
+      var calculatorState = this.props.calculatorState || this.calculatorState;
+      if (calculatorState) {
+        this.calculator.setState(calculatorState);
       }
-      var obj = this.lastOBJ = this.props.obj;
-      var graph = {
-        showGrid: obj.showGrid || false,
-        showXAxis: obj.showXAxis || false,
-        showYAxis: obj.showYAxis || false
-      };
-      this.calculator.updateSettings(graph);
-      var exprs = [].concat(obj.exprs ? obj.exprs : obj);
-      exprs.forEach(function (expr) {
-        if (typeof expr === "string") {
-          expr = {
-            latex: expr
-          };
+      if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
+        if (this.lastOBJ) {
+          // Code changed so clear user state.
+          this.calculator.setBlank();
         }
-        _this2.calculator.setExpression(expr);
-      });
+        var obj = this.props.obj;
+        var graph = {
+          showGrid: obj.showGrid || false,
+          showXAxis: obj.showXAxis || false,
+          showYAxis: obj.showYAxis || false
+        };
+        this.calculator.updateSettings(graph);
+        var exprs = [].concat(obj.exprs ? obj.exprs : obj);
+        exprs.forEach(function (expr) {
+          if (typeof expr === "string") {
+            expr = {
+              latex: expr
+            };
+          }
+          _this2.calculator.setExpression(expr);
+        });
+      }
+      this.lastOBJ = this.props.obj;
       this.calculatorState = this.calculator.getState();
     },
     render: function render() {
