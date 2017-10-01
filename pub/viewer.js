@@ -352,9 +352,6 @@ window.gcexports.viewer = function () {
         showYAxis: obj.showYAxis || false
       };
       this.calculator.updateSettings(graph);
-      if (this.props.obj.bounds) {
-        this.calculator.setMathBounds(this.props.obj.bounds);
-      }
       var exprs = [].concat(obj.exprs ? obj.exprs : obj);
       exprs.forEach(function (expr) {
         if (typeof expr === "string") {
@@ -381,12 +378,19 @@ window.gcexports.viewer = function () {
       if (!this.lastOBJ) {
         if (this.props.calculatorState) {
           this.calculator.setState(this.props.calculatorState);
+        } else if (this.props.obj.bounds) {
+          // Set bounds if first time through and not state
+          this.calculator.setMathBounds(this.props.obj.bounds);
         }
         this.updateCode();
       } else if (JSON.stringify(this.lastOBJ) !== JSON.stringify(this.props.obj)) {
         // Code changed so clear user state.
         this.calculator.setBlank();
         this.updateCode();
+        if (this.props.obj.bounds) {
+          // Set bounds if code changes.
+          this.calculator.setMathBounds(this.props.obj.bounds);
+        }
       }
       this.lastOBJ = this.props.obj;
       this.calculatorState = this.calculator.getState();
