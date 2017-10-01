@@ -229,16 +229,16 @@ const transform = (function() {
           top = right = -left;
         } else if (val0 instanceof Array) {
           if (val0.length === 1) {
-            left = bottom = -val0;
+            left = bottom = -val0[0];
             right = top = -left;
           } else if (val0.length === 2) {
-            left = bottom = val0[0];
-            right = top = val0[1];
+            left = bottom = +val0[0];
+            right = top = +val0[1];
           } else if (val0.length === 4) {
-            left = val0[0];
-            bottom = val0[1];
-            top = val0[2];
-            right = val0[3];
+            left = +val0[0];
+            bottom = +val0[1];
+            top = +val0[2];
+            right = +val0[3];
           }
         }
         assert(isFinite(left) &&
@@ -251,6 +251,7 @@ const transform = (function() {
           top: top,
           bottom: bottom,
         };
+        console.log("bounds() bounds=" + JSON.stringify(val1.bounds));
         resume([].concat(err0).concat(err1), val1);
       });
     });
