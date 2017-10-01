@@ -352,6 +352,9 @@ window.gcexports.viewer = function () {
         showYAxis: obj.showYAxis || false
       };
       this.calculator.updateSettings(graph);
+      if (this.props.obj.bounds) {
+        this.calculator.setMathBounds(this.props.obj.bounds);
+      }
       var exprs = [].concat(obj.exprs ? obj.exprs : obj);
       exprs.forEach(function (expr) {
         if (typeof expr === "string") {

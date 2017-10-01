@@ -10,6 +10,7 @@ window.gcexports.globalLexicon = {
     "map" : { "tk": 1, "name": "MAP", "cls": "function", "length": 2, "arity": 2 },
     "width" : { "tk": 1, "name": "WIDTH", "cls": "function", "length": 2, "arity": 2 },
     "height" : { "tk": 1, "name": "HEIGHT", "cls": "function", "length": 2, "arity": 2 },
+    "bounds" : { "tk": 1, "name": "BOUNDS", "cls": "function", "length": 2, "arity": 2 },
     "showGrid" : { "tk": 1, "name": "SHOW-GRID", "cls": "function", "length": 1, "arity": 1 },
     "showXAxis" : { "tk": 1, "name": "SHOW-X-AXIS", "cls": "function", "length": 1, "arity": 1 },
     "showYAxis" : { "tk": 1, "name": "SHOW-Y-AXIS", "cls": "function", "length": 1, "arity": 1 },

@@ -42,6 +42,7 @@ const transform = (function() {
     "PAREN" : paren,
     "WIDTH" : width,
     "HEIGHT" : height,
+    "BOUNDS" : bounds,
     "SHOW-GRID" : showGrid,
     "SHOW-X-AXIS" : showXAxis,
     "SHOW-Y-AXIS" : showYAxis,
@@ -209,6 +210,47 @@ const transform = (function() {
           }
         }
         val1.height = val0;
+        resume([].concat(err0).concat(err1), val1);
+      });
+    });
+  }
+  function bounds(node, options, resume) {
+    // Apply a function to arguments.
+    visit(node.elts[0], options, function (err0, val0) {
+      visit(node.elts[1], options, function (err1, val1) {
+        if (!val1.exprs) {
+          val1 = {
+            exprs: val1
+          }
+        }
+        let left, right, bottom, top;
+        if (isFinite(+val0)) {
+          left = bottom = -val0;
+          top = right = -left;
+        } else if (val0 instanceof Array) {
+          if (val0.length === 1) {
+            left = bottom = -val0;
+            right = top = -left;
+          } else if (val0.length === 2) {
+            left = bottom = val0[0];
+            right = top = val0[1];
+          } else if (val0.length === 4) {
+            left = val0[0];
+            bottom = val0[1];
+            top = val0[2];
+            right = val0[3];
+          }
+        }
+        assert(isFinite(left) &&
+               isFinite(right) &&
+               isFinite(top) &&
+               isFinite(bottom), "bounds() expected array");
+        val1.bounds = {
+          left: left,
+          right: right,
+          top: top,
+          bottom: bottom,
+        };
         resume([].concat(err0).concat(err1), val1);
       });
     });
