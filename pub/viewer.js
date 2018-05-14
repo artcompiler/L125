@@ -329,13 +329,13 @@ window.gcexports.viewer = function () {
             }
             _this.timer = window.setTimeout(function () {
               // It's been 1000ms since last change, so save it.
-              window.gcexports.dispatcher.dispatch({
-                "L125": {
-                  data: {
-                    calculatorState: state
-                  }
+              var state = {};
+              state[window.gcexports.id] = {
+                data: {
+                  calculatorState: state
                 }
-              });
+              };
+              window.gcexports.dispatcher.dispatch(state);
             }, 1000);
           }
         }, 100);
@@ -400,10 +400,19 @@ window.gcexports.viewer = function () {
       // owned components.
       var width = this.props.obj.width || "600px";
       var height = this.props.obj.height || "400px";
-      return React.createElement("div", { id: "calculator", style: {
-          "width": width,
-          "height": height
-        } });
+      return React.createElement(
+        "div",
+        null,
+        React.createElement("link", { rel: "stylesheet", href: "https://l125.artcompiler.com/style.css" }),
+        React.createElement(
+          "div",
+          { className: "L116 viewer" },
+          React.createElement("div", { id: "calculator", style: {
+              "width": width,
+              "height": height
+            } })
+        )
+      );
     }
   });
   return {

@@ -57,13 +57,13 @@ window.gcexports.viewer = (function () {
             }
             this.timer = window.setTimeout(function () {
               // It's been 1000ms since last change, so save it.
-              window.gcexports.dispatcher.dispatch({
-                "L125": {
-                  data: {
-                    calculatorState: state,
-                  },
-                }
-              });
+              let state = {}
+              state[window.gcexports.id] = {
+                data: {
+                  calculatorState: state,
+                },
+              };
+              window.gcexports.dispatcher.dispatch(state);
             }, 1000);
           }
         }, 100);
@@ -127,10 +127,16 @@ window.gcexports.viewer = (function () {
       let width = this.props.obj.width || "600px";
       let height = this.props.obj.height || "400px"
       return (
-        <div id="calculator" style={{
+        <div>
+          <link rel="stylesheet" href="https://l125.artcompiler.com/style.css" />
+          <div className="L116 viewer">
+          <div id="calculator" style={{
           "width": width,
           "height": height,
-        }}></div>
+          }}>
+          </div>
+          </div>
+        </div>
       );
     },
   });
